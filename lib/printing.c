@@ -31,7 +31,12 @@ void print_byte_offset (u32 bytes_per_line, u8 format) {
     byte_counter += bytes_per_line;
 }
 
-byte linebuffer[LINE_BUFFER_SIZE];
+#if !DYNAMIC_LINE_BUFFER
+    byte linebuffer[LINE_BUFFER_SIZE];
+#else
+byte* linebuffer;
+#endif
+
 void print_ascii_column(u32 line_bytes) {
     ecput(TEXT_PADDING);
     for(u32 i = 0; i < line_bytes + 1; i++) {
@@ -60,6 +65,12 @@ void print_file(char* filename, u64 offset, u64 bytes_amount, u8 format, u8 grou
     u8 bit_grouping_counter = 0;
     byte bytebuffer = 0;
 
+#if DYNAMIC_LINE_BUFFER
+    linebuffer = malloc(line_bytes + LINE_BUFFER_SAFETY_OVERHEAD);
+    for (size i = 0; i < line_bytes + LINE_BUFFER_SAFETY_OVERHEAD - 4; i++) linebuffer[i] = 0;
+#else
+    if (line_bytes > LINE_BUFFER_SIZE) fail("Line Buffer too small to work properly. Recompile with a greater LINE_BUFFER_SIZE definition or enable the Dynamic Line Buffer compiled setting.");
+#endif
     if (show_byte_offset) print_byte_offset(line_bytes, byte_offset_format);
 
     while(!feof(file)) {
@@ -135,17 +146,17 @@ void print_file(char* filename, u64 offset, u64 bytes_amount, u8 format, u8 grou
                     increase_file_counter(1);
                     bytebuffer = fgetc(file);
                     linebuffer[line_char_counter] = bytebuffer;
-                    printf("%2d %2d", get_nibble(bytebuffer, true), get_nibble(bytebuffer, false));
+                    printf("%2hhd %2hhd", get_nibble(bytebuffer, true), get_nibble(bytebuffer, false));
                     break;
                 case BYTE:
                     increase_file_counter(1);
                     bytebuffer = fgetc(file);
                     linebuffer[line_char_counter] = bytebuffer;
-                    printf("%3d", bytebuffer);
+                    printf("%3hd", bytebuffer);
                     break;
                 case WORD:
                     increase_file_counter(2);
-                    printf("%5d", word_from_bytes(fgetc(file), fgetc(file)));
+                    printf("%5hd", word_from_bytes(fgetc(file), fgetc(file)));
                     break;
                 case DWORD:
                     increase_file_counter(4);
@@ -154,6 +165,39 @@ void print_file(char* filename, u64 offset, u64 bytes_amount, u8 format, u8 grou
                 case QWORD:
                     increase_file_counter(8);
                     printf("%20lld", qword_from_bytes(fgetc(file), fgetc(file), fgetc(file), fgetc(file), fgetc(file), fgetc(file), fgetc(file), fgetc(file)));
+                    break;
+                default:
+                    fail("Invalid Grouping for Decimal.");
+                    break;
+                }
+                //-----------------------------
+                break;
+            case UDEC:
+                //-----------------------------
+                switch (grouping) {
+                case NIBBLE:
+                    increase_file_counter(1);
+                    bytebuffer = fgetc(file);
+                    linebuffer[line_char_counter] = bytebuffer;
+                    printf("%2hhu %2hhu", get_nibble(bytebuffer, true), get_nibble(bytebuffer, false));
+                    break;
+                case BYTE:
+                    increase_file_counter(1);
+                    bytebuffer = fgetc(file);
+                    linebuffer[line_char_counter] = bytebuffer;
+                    printf("%3hu", bytebuffer);
+                    break;
+                case WORD:
+                    increase_file_counter(2);
+                    printf("%5hu", word_from_bytes(fgetc(file), fgetc(file)));
+                    break;
+                case DWORD:
+                    increase_file_counter(4);
+                    printf("%10u", dword_from_bytes(fgetc(file), fgetc(file), fgetc(file), fgetc(file)));
+                    break;
+                case QWORD:
+                    increase_file_counter(8);
+                    printf("%20llu", qword_from_bytes(fgetc(file), fgetc(file), fgetc(file), fgetc(file), fgetc(file), fgetc(file), fgetc(file), fgetc(file)));
                     break;
                 default:
                     fail("Invalid Grouping for Decimal.");
@@ -223,4 +267,7 @@ void print_file(char* filename, u64 offset, u64 bytes_amount, u8 format, u8 grou
     puts("");
     if (show_byte_offset) print_byte_offset(1, byte_offset_format);
     puts("");
+#if DYNAMIC_LINE_BUFFER
+    free(linebuffer);
+#endif
 }

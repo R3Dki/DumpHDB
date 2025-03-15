@@ -85,13 +85,15 @@ void parse_args(i32 argc, char* argv[], u8* output_format, u8* output_grouping, 
             if(pcmpstr(argv[i], "-v")) {
                 printf("DumpHDB Version %d.%d.%d\nTypes Library Version %d.%d.%d\n\
 Parsing Library Verion %d.%d.%d\nPrinting Library Version %d.%d.%d\n\
-Bit Ops Library Version %d.%d.%d\nConversion Library Version %d.%d.%d\n",
+Bit Ops Library Version %d.%d.%d\nConversion Library Version %d.%d.%d\n\
+Help Page Version %d.%d\n",
                 DUMPHDB_VER_MAJOR, DUMPHDB_VER_MINOR, DUMPHDB_VER_PATCH,
                 TYPES_LIB_VERSION_MAJOR,TYPES_LIB_VERSION_MINOR,TYPES_LIB_VERSION_PATCH,
                 PARSING_LIB_VER_MAJOR, PARSING_LIB_VER_MINOR, PARSING_LIB_VER_PATCH,
                 PRINTING_LIB_VER_MAJOR, PRINTING_LIB_VER_MINOR, PRINTING_LIB_VER_PATCH,
                 BITOPS_LIB_VER_MAJOR, BITOPS_LIB_VER_MINOR, BITOPS_LIB_VER_PATCH,
-                CONVERSION_LIB_VER_MAJOR, CONVERSION_LIB_VER_MINOR, CONVERSION_LIB_VER_PATCH);
+                CONVERSION_LIB_VER_MAJOR, CONVERSION_LIB_VER_MINOR, CONVERSION_LIB_VER_PATCH,
+                HELP_PAGE_VERSION_MAJOR, HELP_PAGE_VERSION_MINOR);
                 exit(0);
             }
             if(pcmpstr(argv[i], "-h")) { printf("DumpHDB Version %d.%d.%d Help Page\n%s", DUMPHDB_VER_MAJOR, DUMPHDB_VER_MINOR, DUMPHDB_VER_PATCH, HELP_PAGE); exit(0); }
@@ -99,6 +101,7 @@ Bit Ops Library Version %d.%d.%d\nConversion Library Version %d.%d.%d\n",
             if(pcmpstr(argv[i], "-b")) { *output_format = BIN; continue; }
             if(pcmpstr(argv[i], "-o")) { *output_format = OCT; continue; }
             if(pcmpstr(argv[i], "-d")) { *output_format = DEC; continue; }
+            if(pcmpstr(argv[i], "-u")) { *output_format = UDEC; continue; }
             if(pcmpstr(argv[i], "-x")) { *output_format = HEX; continue; }
             if(pcmpstr(argv[i], "-X")) { *output_format = HEX; *uppercase = true; continue; }
             if(pcmpstr(argv[i], "-t")) { *output_format = ASCII; continue; }
@@ -137,7 +140,7 @@ Bit Ops Library Version %d.%d.%d\nConversion Library Version %d.%d.%d\n",
         *output_grouping = BYTE;
     }
     
-    if (*output_format == DEC && *output_grouping == BIT) {
+    if ((*output_format == DEC || *output_format == UDEC) && *output_grouping == BIT) {
         warning("Decimal does not support Bit Grouping, using Byte Grouping");
         *output_grouping = BYTE;
     }

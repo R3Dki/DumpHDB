@@ -4,7 +4,7 @@
 
 #define PARSING_LIB_VER_MAJOR 1
 #define PARSING_LIB_VER_MINOR 0
-#define PARSING_LIB_VER_PATCH 2
+#define PARSING_LIB_VER_PATCH 3
 
 #include "types.h"
 #include "conversion.h"
@@ -18,11 +18,12 @@ extern const u8 group_byte_size[];
 
 // Output Format Enum
 enum format {
-    BIN,
-    OCT,
-    DEC,
-    HEX,
-    ASCII
+    BIN, // Binary
+    OCT, // Octal
+    DEC, // Decimal
+    UDEC, // Unsigned Decimal
+    HEX, // Hexadecimal
+    ASCII // ASCII Text
 };
 
 // Output Grouping Enum

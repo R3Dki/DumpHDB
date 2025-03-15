@@ -4,7 +4,7 @@
 
 #define PRINTING_LIB_VER_MAJOR 1
 #define PRINTING_LIB_VER_MINOR 1
-#define PRINTING_LIB_VER_PATCH 0
+#define PRINTING_LIB_VER_PATCH 1
 
 #include "dumphdb.h"
 #include "parsing.h"
